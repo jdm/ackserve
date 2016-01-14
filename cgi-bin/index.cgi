@@ -31,13 +31,18 @@ print '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.j
 print '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1.0/highlight.min.js"></script>'
 print '<script>hljs.initHighlightingOnLoad()</script>'
 print '<style>.hljs { background: none; display: inline; }</style>'
+print '<style>pre.codez { display: inline } .highlight { background-color: #EEEEBB }</style>'
 print '<body>'
 print '<form name="foo" method="get">'
-print '<h4>Find <input name="search" value="%s"> in <input name="path" value="%s"> <input type=submit></h4>' % (search, path)
+print '<h4>Find <input name="search" value="%s"> in <input name="path" value="%s" size=30> <input type=submit></h4>' % (search, path)
 print '</form>'
 
 if search:
-    output = subprocess.check_output(['ack', search, path, '--nocolor'])
+    try:
+        output = subprocess.check_output(['ack', search, path, '--nocolor'])
+    except subprocess.CalledProcessError:
+        print 'No results.'
+        sys.exit(0)
     lines = output.split('\n')
     files = itertools.groupby(lines, lambda line: line.split(':')[0])
     for (file, group) in files:
@@ -47,7 +52,15 @@ if search:
                 continue
             #sys.stderr.write(line + '\n')
             (filename, lineno, contents) = line.split(':', 2)
-            print '<a href="?path=%s#%s">line %s</a> -- <pre style="display: inline"><code>%s</code></pre><br>' % (file, lineno, lineno, cgi.escape(contents))
+            contents = cgi.escape(contents)
+            begin = contents.find(search)
+            end = begin + len(search)
+            pre = contents[:contents.find(search)]
+            actual = contents[begin:end]
+            post = contents[end:]
+            print '''<a href="?path=%s#%s">line %s</a> -- <pre class="codez">%s</pre><pre class="codez highlight">%s</pre><pre class="codez">%s</pre>''' % (file, lineno, lineno, pre, actual, post)
+            #print '</code></pre><br>'
+            print '<br>'
         print '</div><br>'
 elif os.path.isdir(path):
     if path[-1] != '/':
