@@ -10,7 +10,7 @@ directory listings, and the search results are clickable links to lines of match
 To use ackserve, first ensure the `ack` binary is in your PATH. Note that on Debian-based distributions
 the `ack` tool goes by `ack-grep` and is not currently supported.
 
-git clone https://github.com/jdm/ackserve.git
-cd ackserve
-python -m CGIHTTPServer
-firefox http://localhost:8000/?path=/absolute/path/to/project/root
+    git clone https://github.com/jdm/ackserve.git
+    cd ackserve
+    python -m CGIHTTPServer
+    firefox http://localhost:8000/?path=/absolute/path/to/project/root
